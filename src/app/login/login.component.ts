@@ -1,9 +1,9 @@
 import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {AuthService} from '../services/AuthService';
-import {Router, RouterModule} from '@angular/router';
+ import {Router, RouterModule} from '@angular/router';
 import { CommonModule } from '@angular/common';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { AuthWsService } from '../services/AuthService';
 
 @Component({
   selector: 'app-login',
@@ -18,7 +18,7 @@ export class LoginComponent implements OnInit {
   error = '';
 
   constructor(private fb: FormBuilder,
-              private auth: AuthService,
+              private auth: AuthWsService,
               private router: Router) {
     this.form = this.fb.group({
       username: ['', Validators.required],

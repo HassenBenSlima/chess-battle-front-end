@@ -1,10 +1,18 @@
-<div class="players-container">
-  <h2>Bienvenue, {{me}}</h2>
-  <h3>Joueurs en ligne :</h3>
-  <ul>
-    <li *ngFor="let player of players">
-      {{player}}
-      <button (click)="invite(player)">Inviter</button>
-    </li>
-  </ul>
-</div>
+<!--<div class="container mt-4">-->
+<!--  <h2>Bienvenue, {{ me }}</h2>-->
+
+<!--  <h4>Joueurs en ligne</h4>-->
+<!--  <div class="mb-3">-->
+<!--    <button *ngFor="let p of players"-->
+<!--            class="btn btn-primary me-2 mb-2"-->
+<!--            (click)="invite(p)">-->
+<!--      Inviter {{ p }}-->
+<!--    </button>-->
+<!--  </div>-->
+
+<!--  <h4>Invitations reçues</h4>-->
+<!--  <div *ngFor="let inv of invitations" class="alert alert-info d-flex justify-content-between align-items-center">-->
+<!--    <span>{{ inv.from }} vous invite à jouer</span>-->
+<!--    <button class="btn btn-success btn-sm" (click)="accept(inv)">Accepter</button>-->
+<!--  </div>-->
+<!--</div>-->

@@ -1,8 +1,45 @@
-<div class="welcome">
-  <h1>Welcome {{user.username}} 👋</h1>
-  <p>You are successfully connected.</p>
+<div class="welcome-container">
+  <!-- User Welcome -->
+  <div class="user-section" *ngIf="currentUser">
+    <h2>Welcome, {{ currentUser.username }}!</h2>
+    <button *ngIf="!gameStarted" (click)="loadUsers()">Refresh Online Players</button>
+  </div>
 
-  <a routerLink="/players">
-    <button>Enter game lobby</button>
-  </a>
+  <!-- Online Players -->
+  <div class="online-section" *ngIf="onlineUsers.length > 0 && !gameStarted">
+    <h3>Online Players ({{ onlineUsers.length }})</h3>
+    <div class="user-list">
+      <div class="user-item" *ngFor="let user of onlineUsers">
+        <span>{{ user }}</span>
+        <button (click)="invite(user)">Invite to Play</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pending Invitations -->
+  <div class="invitations-section" *ngIf="invitations.length > 0 && !gameStarted">
+    <h3>Pending Invitations ({{ invitations.length }})</h3>
+    <div class="invitation-list">
+      <div class="invitation-item" *ngFor="let inv of invitations">
+        <p>{{ inv.from }} wants to play with you!</p>
+        <div class="invitation-actions">
+          <button (click)="accept(inv)">Accept</button>
+          <button (click)="refuse(inv)" class="refuse-btn">Decline</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Started -->
+  <div class="game-section" *ngIf="gameStarted">
+    <h3>Game in Progress!</h3>
+    <app-chess-board></app-chess-board>
+    <button (click)="gameStarted = false">Leave Game</button>
+  </div>
+
+  <!-- No Players Online -->
+  <div class="empty-state" *ngIf="onlineUsers.length === 0 && !gameStarted">
+    <p>No other players online. Wait for players to join or refresh the list.</p>
+    <button (click)="loadUsers()">Refresh</button>
+  </div>
 </div>

@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Router, RouterModule} from '@angular/router';
-import {AuthService} from '../services/AuthService';
+import {AuthWsService} from '../services/AuthService';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -19,7 +19,7 @@ export class RegisterComponent implements OnInit {
   success = '';
 
   constructor(private fb: FormBuilder,
-              private auth: AuthService,
+              private auth: AuthWsService,
               private router: Router) {
   }
 
