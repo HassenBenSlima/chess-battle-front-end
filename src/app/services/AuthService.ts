@@ -50,7 +50,7 @@ export class AuthWsService {
   user$ = new BehaviorSubject<any>(this.getUser());
   currentPlayerTurn$ = new BehaviorSubject<'white' | 'black'>('white');
   gameMoves$ = new BehaviorSubject<Move[]>([]);
- 
+
   constructor(private http: HttpClient) {
     // Initialize STOMP client
     this.stompClient = new Stomp.Client({
@@ -70,6 +70,22 @@ export class AuthWsService {
         this.connectWebSocket();
       })
     );
+  }
+
+  /**
+   * Check if user is logged in
+   * Simply checks if user exists in localStorage
+   */
+  isLoggedIn(): boolean {
+    const user = this.getCurrentUser();
+    return !!user; // Returns true if user exists, false if null/undefined
+  }
+
+  /**
+   * Get current user
+   */
+  getCurrentUser(): any | null {
+    return this.user$.value;
   }
 
   register(data: any) {
@@ -137,7 +153,7 @@ export class AuthWsService {
     this.stompClient.activate();
   }
 
-  
+
 
   disconnectWebSocket() {
     if (this.stompClient && this.connected) {
@@ -197,7 +213,7 @@ export class AuthWsService {
     this.subscribeToGameMoves(gameId);
   }
 
-   
+
 
   // ==================== UTILITY ====================
   getConnectionStatus() {
@@ -225,12 +241,12 @@ export class AuthWsService {
       const game: Game = JSON.parse(message.body);
       this.gameCreated$.next(game);
       console.log('Game created:', game);
-      
+
       // Determine if current user is white or black
       const currentUser = this.getUser()?.username;
       const myColor = this.getMyColor(game, currentUser);
       console.log(`I am playing as: ${myColor}`);
-      
+
       // Subscribe to game moves
       this.subscribeToGameMoves(game.id);
     });
@@ -238,7 +254,7 @@ export class AuthWsService {
 
   subscribeToGameMoves(gameId: number) {
     const topic = `/topic/game/${gameId}`;
-    
+
     this.stompClient.subscribe(topic, (message) => {
       const response: GameMoveResponse = JSON.parse(message.body);
       this.gameMoves$.next(response.moves);
@@ -257,10 +273,10 @@ export class AuthWsService {
   // Check if it's current user's turn
   isMyTurn(game: Game): boolean {
     if (!game) return false;
-    
+
     const currentUser = this.getUser()?.username;
     const myColor = this.getMyColor(game, currentUser);
-    
+
     return game.currentPlayer === myColor;
   }
 
