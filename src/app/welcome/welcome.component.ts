@@ -12,57 +12,45 @@ import { Observable, Subscription } from 'rxjs';
   styleUrl: './welcome.component.scss'
 })
 export class WelcomeComponent implements OnInit, OnDestroy {
-  gameStarted = false;
-
   onlineUsers: string[] = [];
   invitations: Invitation[] = [];
+  game: any = null;
   currentUser: any;
-
-  invites$: Observable<Invitation[]>;
-  gameId$: Observable<number | null>;
-  users$: Observable<string[]>;
 
   private subscriptions: Subscription = new Subscription();
 
   constructor(private auth: AuthWsService) {
     this.currentUser = this.auth.getUser();
-
-    // Initialize observables
-    this.invites$ = this.auth.invitations$;
-    this.users$ = this.auth.onlineUsers$;
-    this.gameId$ = this.auth.gameId$;
   }
 
   ngOnInit() {
     this.loadUsers();
 
-    // Connect WebSocket AFTER getting user data
     if (this.currentUser) {
       this.auth.connectWebSocket();
     }
 
-    // Subscribe to observables
+    // Subscribe to game creation
     this.subscriptions.add(
-      this.gameId$.subscribe((id: number | null) => {
-        this.gameStarted = !!id;
-        if (id) {
-          console.log('Game started with ID:', id);
+      this.auth.gameCreated$.subscribe((game: any) => {
+        if (game) {
+          this.game = game;
+          console.log('Game started:', game);
         }
       })
     );
 
+    // Subscribe to invitations
     this.subscriptions.add(
-      this.invites$.subscribe((invitations: Invitation[]) => {
+      this.auth.invitations$.subscribe((invitations: Invitation[]) => {
         this.invitations = invitations;
-        console.log('Invitations updated:', invitations);
       })
     );
 
+    // Subscribe to online users
     this.subscriptions.add(
-      this.users$.subscribe((users: string[]) => {
-        // Filter out current user
+      this.auth.onlineUsers$.subscribe((users: string[]) => {
         this.onlineUsers = users.filter(u => u !== this.currentUser?.username);
-        console.log('Online users updated:', this.onlineUsers);
       })
     );
   }
@@ -73,7 +61,7 @@ export class WelcomeComponent implements OnInit, OnDestroy {
         if (Array.isArray(users)) {
           this.onlineUsers = users
             .filter((u: any) => u.username !== this.currentUser?.username)
-            .map((u: any) => u.username || u); // Extract username if it's an object
+            .map((u: any) => u.username || u);
         }
       },
       error: (err) => {
@@ -90,22 +78,17 @@ export class WelcomeComponent implements OnInit, OnDestroy {
 
   accept(invitation: Invitation) {
     this.auth.acceptInvite(invitation);
-    // Remove from local list
-    this.invitations = this.invitations.filter(
-      inv => !(inv.from === invitation.from && inv.to === invitation.to)
-    );
   }
 
   refuse(invitation: Invitation) {
     this.auth.refuseInvite(invitation);
-    // Remove from local list
-    this.invitations = this.invitations.filter(
-      inv => !(inv.from === invitation.from && inv.to === invitation.to)
-    );
+  }
+
+  leaveGame() {
+    this.game = null;
   }
 
   ngOnDestroy() {
-    // Clean up subscriptions
     this.subscriptions.unsubscribe();
   }
 }

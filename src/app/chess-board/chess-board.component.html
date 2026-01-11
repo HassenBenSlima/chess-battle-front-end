@@ -1,8 +1,124 @@
-<div class="board">
-  <div *ngFor="let r of board; let i=index" class="row">
-    <div *ngFor="let c of r; let j=index"
-         class="cell"
-         (click)="move('e2','e4')">
+<div class="chess-game" *ngIf="game">
+  <!-- Game Header -->
+  <div class="game-header">
+    <h2>Game #{{game.id}}</h2>
+
+    <!-- Player Information -->
+    <div class="player-info">
+      <div class="player white-player" [class.active]="game.currentPlayer === 'white'">
+        <div class="player-color white"></div>
+        <div class="player-details">
+          <span class="player-name">{{game.whitePlayer}}</span>
+          <span class="player-status" *ngIf="myColor === 'white'">(You)</span>
+          <span class="turn-indicator" *ngIf="game.currentPlayer === 'white'">→ Thinking...</span>
+        </div>
+      </div>
+
+      <div class="vs">VS</div>
+
+      <div class="player black-player" [class.active]="game.currentPlayer === 'black'">
+        <div class="player-color black"></div>
+        <div class="player-details">
+          <span class="player-name">{{game.blackPlayer}}</span>
+          <span class="player-status" *ngIf="myColor === 'black'">(You)</span>
+          <span class="turn-indicator" *ngIf="game.currentPlayer === 'black'">→ Thinking...</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Turn Indicator -->
+    <div class="turn-info" *ngIf="isMyTurn">
+      <div class="your-turn">🎯 YOUR TURN!</div>
+      <p>It's your turn to move. You are playing as <strong>{{myColor | uppercase}}</strong>.</p>
+    </div>
+    <div class="turn-info" *ngIf="!isMyTurn">
+      <div class="opponent-turn">⏳ Waiting for opponent...</div>
+      <p>{{opponent}} is thinking...</p>
+    </div>
+  </div>
+
+  <!-- Chess Board -->
+  <div class="chess-board">
+    <div class="board-container">
+      <!-- File letters -->
+      <div class="file-labels">
+        <span *ngFor="let file of files">{{file}}</span>
+      </div>
+
+      <!-- Board -->
+      <div class="board-row" *ngFor="let rank of ranks; let rankIndex = index">
+        <div class="rank-label">{{8 - rankIndex}}</div>
+        <div class="board-cells">
+          <div
+            *ngFor="let file of files; let fileIndex = index"
+            class="chess-square"
+            [class.white-square]="(rankIndex + fileIndex) % 2 === 0"
+            [class.black-square]="(rankIndex + fileIndex) % 2 === 1"
+            [id]="file + (8 - rankIndex)"
+            (click)="onSquareClick(file + (8 - rankIndex))"
+          >
+            <!-- Chess piece -->
+            <div class="chess-piece" *ngIf="getPieceAt(file + (8 - rankIndex))"
+                 [class.white-piece]="isWhitePiece(file + (8 - rankIndex))"
+                 [class.black-piece]="isBlackPiece(file + (8 - rankIndex))">
+              {{getPieceSymbol(file + (8 - rankIndex))}}
+            </div>
+
+            <!-- Move indicators -->
+            <div class="move-from" *ngIf="isMoveFromSquare(file + (8 - rankIndex))"></div>
+            <div class="move-to" *ngIf="isMoveToSquare(file + (8 - rankIndex))"></div>
+            <div class="possible-move" *ngIf="isPossibleMove(file + (8 - rankIndex))"></div>
+            <div class="selected-square" *ngIf="selectedSquare === file + (8 - rankIndex)"></div>
+          </div>
+        </div>
+        <div class="rank-label">{{8 - rankIndex}}</div>
+      </div>
+
+      <!-- File letters -->
+      <div class="file-labels">
+        <span *ngFor="let file of files">{{file}}</span>
+      </div>
+    </div>
+
+    <!-- Board orientation toggle -->
+    <div class="board-controls">
+      <button (click)="flipBoard()">
+        {{boardFlipped ? 'View from White' : 'View from Black'}}
+      </button>
+      <span class="orientation-hint">
+            Viewing from: {{boardFlipped ? 'Black' : 'White'}} side
+          </span>
+    </div>
+  </div>
+
+  <!-- Game Controls -->
+  <div class="game-controls">
+    <button (click)="resign()" class="btn-resign">🏳️ Resign</button>
+    <button (click)="offerDraw()" class="btn-draw">🤝 Offer Draw</button>
+    <button (click)="undoMove()" class="btn-undo" *ngIf="moves.length > 0">↶ Undo</button>
+  </div>
+
+  <!-- Move History -->
+  <div class="move-history">
+    <h3>Move History</h3>
+    <div class="moves-table">
+      <div class="move-row header">
+        <div class="move-number">#</div>
+        <div class="move-white">White</div>
+        <div class="move-black">Black</div>
+      </div>
+      <div class="moves-scroll">
+        <div class="move-row" *ngFor="let movePair of getMovePairs(); let i = index">
+          <div class="move-number">{{i + 1}}.</div>
+          <div class="move-white" [class.current-move]="isCurrentMove(movePair.white?.fromPos)">
+            {{movePair.white ? movePair.white.fromPos + ' → ' + movePair.white.toPos : '...'}}
+          </div>
+          <div class="move-black" [class.current-move]="isCurrentMove(movePair.black?.fromPos)">
+            {{movePair.black ? movePair.black.fromPos + ' → ' + movePair.black.toPos : ''}}
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
+

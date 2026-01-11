@@ -3,136 +3,74 @@
   margin: 0 auto;
   padding: 20px;
   font-family: Arial, sans-serif;
+}
 
-  .user-section {
-    text-align: center;
-    margin-bottom: 30px;
+.user-section {
+  text-align: center;
+  margin-bottom: 30px;
+}
 
-    h2 {
-      color: #333;
-    }
+.user-section h2 {
+  color: #333;
+}
 
-    button {
-      background-color: #007bff;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
+.online-section, .invitations-section {
+  margin-bottom: 30px;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
 
-      &:hover {
-        background-color: #0056b3;
-      }
-    }
-  }
+.user-list, .invitation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
-  .online-section, .invitations-section {
-    margin-bottom: 30px;
-    padding: 20px;
-    background-color: #f8f9fa;
-    border-radius: 8px;
+.user-item, .invitation-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background-color: white;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
 
-    h3 {
-      color: #495057;
-      margin-bottom: 15px;
-      border-bottom: 2px solid #dee2e6;
-      padding-bottom: 10px;
-    }
-  }
+button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
 
-  .user-list, .invitation-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
+.user-item button {
+  background-color: #28a745;
+  color: white;
+}
 
-  .user-item, .invitation-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px;
-    background-color: white;
-    border-radius: 6px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+.invitation-actions {
+  display: flex;
+  gap: 10px;
+}
 
-    span, p {
-      margin: 0;
-      font-weight: 500;
-    }
-  }
+.invitation-actions button:first-child {
+  background-color: #28a745;
+  color: white;
+}
 
-  button {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: background-color 0.2s;
+.refuse-btn {
+  background-color: #dc3545;
+  color: white;
+}
 
-    &:hover {
-      opacity: 0.9;
-    }
-  }
+.game-section {
+  text-align: center;
+}
 
-  .user-item button {
-    background-color: #28a745;
-    color: white;
-
-    &:hover {
-      background-color: #218838;
-    }
-  }
-
-  .invitation-actions {
-    display: flex;
-    gap: 10px;
-
-    button:first-child {
-      background-color: #28a745;
-      color: white;
-
-      &:hover {
-        background-color: #218838;
-      }
-    }
-
-    .refuse-btn {
-      background-color: #dc3545;
-      color: white;
-
-      &:hover {
-        background-color: #c82333;
-      }
-    }
-  }
-
-  .game-section {
-    text-align: center;
-
-    button {
-      background-color: #dc3545;
-      color: white;
-      margin-top: 20px;
-
-      &:hover {
-        background-color: #c82333;
-      }
-    }
-  }
-
-  .empty-state {
-    text-align: center;
-    padding: 40px;
-    color: #6c757d;
-
-    button {
-      background-color: #6c757d;
-      color: white;
-      margin-top: 15px;
-
-      &:hover {
-        background-color: #5a6268;
-      }
-    }
-  }
+.empty-state, .login-prompt {
+  text-align: center;
+  padding: 40px;
+  color: #6c757d;
 }

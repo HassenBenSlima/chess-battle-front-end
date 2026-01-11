@@ -13,14 +13,25 @@ export interface Invitation {
 export interface Move {
   fromPos: string;
   toPos: string;
+  player?: string; // 'white' or 'black'
+  timestamp?: string;
 }
 
 export interface Game {
   id: number;
   whitePlayer: string;
   blackPlayer: string;
+  currentPlayer: 'white' | 'black';
   status: string;
+  winner?: string;
+  created_at?: string;
 }
+
+export interface GameMoveResponse {
+  moves: Move[];
+  nextPlayer: 'white' | 'black';
+}
+
 
 @Injectable({ providedIn: 'root' })
 export class AuthWsService {
@@ -36,8 +47,10 @@ export class AuthWsService {
   gameId$ = new BehaviorSubject<number | null>(null);
 
   moves$ = new BehaviorSubject<Move[]>([]);
-  private user$ = new BehaviorSubject<any>(this.getUser());
-
+  user$ = new BehaviorSubject<any>(this.getUser());
+  currentPlayerTurn$ = new BehaviorSubject<'white' | 'black'>('white');
+  gameMoves$ = new BehaviorSubject<Move[]>([]);
+ 
   constructor(private http: HttpClient) {
     // Initialize STOMP client
     this.stompClient = new Stomp.Client({
@@ -124,30 +137,7 @@ export class AuthWsService {
     this.stompClient.activate();
   }
 
-  private subscribeToTopics(username: string) {
-    // Subscribe to online users
-    this.stompClient.subscribe('/topic/users', (message) => {
-      const users: string[] = JSON.parse(message.body);
-      this.onlineUsers$.next(users);
-    });
-
-    // Subscribe to invitations (general channel)
-    this.stompClient.subscribe('/topic/invitations', (message) => {
-      const invitation: Invitation = JSON.parse(message.body);
-      // Check if invitation is for the current user
-      if (invitation.to === username) {
-        const currentInvitations = this.invitations$.value;
-        this.invitations$.next([...currentInvitations, invitation]);
-      }
-    });
-
-    // Subscribe to game created for this user
-    this.stompClient.subscribe(`/topic/game-created/${username}`, (message) => {
-      const game: Game = JSON.parse(message.body);
-      this.gameCreated$.next(game);
-      console.log('Game created:', game);
-    });
-  }
+  
 
   disconnectWebSocket() {
     if (this.stompClient && this.connected) {
@@ -207,20 +197,80 @@ export class AuthWsService {
     this.subscribeToGameMoves(gameId);
   }
 
-  private subscribeToGameMoves(gameId: number) {
-    // Check if already subscribed
-    const subscriptionKey = `/topic/game/${gameId}`;
-
-    // Create a unique subscription for each game
-    this.stompClient.subscribe(subscriptionKey, (message) => {
-      const moves: Move[] = JSON.parse(message.body);
-      this.moves$.next(moves);
-      console.log('Moves updated:', moves);
-    });
-  }
+   
 
   // ==================== UTILITY ====================
   getConnectionStatus() {
     return this.connected;
+  }
+
+  private subscribeToTopics(username: string) {
+    // Subscribe to online users
+    this.stompClient.subscribe('/topic/users', (message) => {
+      const users: string[] = JSON.parse(message.body);
+      this.onlineUsers$.next(users);
+    });
+
+    // Subscribe to invitations
+    this.stompClient.subscribe('/topic/invitations', (message) => {
+      const invitation: Invitation = JSON.parse(message.body);
+      if (invitation.to === username) {
+        const currentInvitations = this.invitations$.value;
+        this.invitations$.next([...currentInvitations, invitation]);
+      }
+    });
+
+    // Subscribe to game created
+    this.stompClient.subscribe(`/topic/game-created/${username}`, (message) => {
+      const game: Game = JSON.parse(message.body);
+      this.gameCreated$.next(game);
+      console.log('Game created:', game);
+      
+      // Determine if current user is white or black
+      const currentUser = this.getUser()?.username;
+      const myColor = this.getMyColor(game, currentUser);
+      console.log(`I am playing as: ${myColor}`);
+      
+      // Subscribe to game moves
+      this.subscribeToGameMoves(game.id);
+    });
+  }
+
+  subscribeToGameMoves(gameId: number) {
+    const topic = `/topic/game/${gameId}`;
+    
+    this.stompClient.subscribe(topic, (message) => {
+      const response: GameMoveResponse = JSON.parse(message.body);
+      this.gameMoves$.next(response.moves);
+      this.currentPlayerTurn$.next(response.nextPlayer);
+      console.log('Next player:', response.nextPlayer);
+    });
+  }
+
+  // Helper method to determine user's color
+  getMyColor(game: Game, username: string): 'white' | 'black' | 'spectator' {
+    if (game.whitePlayer === username) return 'white';
+    if (game.blackPlayer === username) return 'black';
+    return 'spectator';
+  }
+
+  // Check if it's current user's turn
+  isMyTurn(game: Game): boolean {
+    if (!game) return false;
+    
+    const currentUser = this.getUser()?.username;
+    const myColor = this.getMyColor(game, currentUser);
+    
+    return game.currentPlayer === myColor;
+  }
+
+  // Get opponent's username
+  getOpponent(game: Game): string {
+    const currentUser = this.getUser()?.username;
+    if (game.whitePlayer === currentUser) {
+      return game.blackPlayer;
+    } else {
+      return game.whitePlayer;
+    }
   }
 }

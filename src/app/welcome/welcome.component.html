@@ -1,23 +1,25 @@
 <div class="welcome-container">
   <!-- User Welcome -->
-  <div class="user-section" *ngIf="currentUser">
+  <div class="user-section" *ngIf="currentUser && !game">
     <h2>Welcome, {{ currentUser.username }}!</h2>
-    <button *ngIf="!gameStarted" (click)="loadUsers()">Refresh Online Players</button>
+    <button (click)="loadUsers()">Refresh Online Players</button>
   </div>
 
   <!-- Online Players -->
-  <div class="online-section" *ngIf="onlineUsers.length > 0 && !gameStarted">
+  <div class="online-section" *ngIf="onlineUsers.length > 0 && !game">
     <h3>Online Players ({{ onlineUsers.length }})</h3>
     <div class="user-list">
       <div class="user-item" *ngFor="let user of onlineUsers">
         <span>{{ user }}</span>
-        <button (click)="invite(user)">Invite to Play</button>
+        <button (click)="invite(user)" [disabled]="user === currentUser?.username">
+          Invite to Play
+        </button>
       </div>
     </div>
   </div>
 
   <!-- Pending Invitations -->
-  <div class="invitations-section" *ngIf="invitations.length > 0 && !gameStarted">
+  <div class="invitations-section" *ngIf="invitations.length > 0 && !game">
     <h3>Pending Invitations ({{ invitations.length }})</h3>
     <div class="invitation-list">
       <div class="invitation-item" *ngFor="let inv of invitations">
@@ -31,15 +33,26 @@
   </div>
 
   <!-- Game Started -->
-  <div class="game-section" *ngIf="gameStarted">
-    <h3>Game in Progress!</h3>
-    <app-chess-board></app-chess-board>
-    <button (click)="gameStarted = false">Leave Game</button>
+  <div class="game-section" *ngIf="game">
+    <div class="game-header">
+      <h2>Game in Progress!</h2>
+      <p>Game ID: {{ game.id }}</p>
+      <p>White: {{ game.whitePlayer }}</p>
+      <p>Black: {{ game.blackPlayer }}</p>
+      <button (click)="leaveGame()">Leave Game</button>
+    </div>
+    <app-chess-board [game]="game"></app-chess-board>
   </div>
 
   <!-- No Players Online -->
-  <div class="empty-state" *ngIf="onlineUsers.length === 0 && !gameStarted">
+  <div class="empty-state" *ngIf="onlineUsers.length === 0 && !game && currentUser">
     <p>No other players online. Wait for players to join or refresh the list.</p>
     <button (click)="loadUsers()">Refresh</button>
+  </div>
+
+  <!-- Not Logged In -->
+  <div class="login-prompt" *ngIf="!currentUser">
+    <h2>Welcome to Chess Battle!</h2>
+    <p>Please log in to play chess with other players.</p>
   </div>
 </div>
