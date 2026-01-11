@@ -1,0 +1,48 @@
+<div class="d-flex justify-content-center align-items-center vh-100 bg-light">
+  <div class="card shadow p-4" style="width: 100%; max-width: 400px;">
+    <div class="card-body">
+      <h3 class="card-title text-center mb-4">Create Account</h3>
+
+      <form [formGroup]="form" (ngSubmit)="register()">
+
+        <!-- Username -->
+        <div class="mb-3">
+          <label for="username" class="form-label">Username</label>
+          <input id="username" type="text" class="form-control" formControlName="username" placeholder="Enter username">
+          <div *ngIf="form.get('username')?.invalid && form.get('username')?.touched" class="text-danger small">
+            Username is required
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input id="password" type="password" class="form-control" formControlName="password" placeholder="Enter password">
+          <div *ngIf="form.get('password')?.invalid && form.get('password')?.touched" class="text-danger small">
+            Password is required
+          </div>
+        </div>
+
+        <!-- Success / Error messages -->
+        <div *ngIf="success" class="alert alert-success">
+          {{ success }}
+        </div>
+        <div *ngIf="error" class="alert alert-danger">
+          {{ error }}
+        </div>
+
+        <!-- Submit button -->
+        <div class="d-grid">
+          <button type="submit" class="btn btn-success">Create Account</button>
+        </div>
+
+      </form>
+
+      <!-- Back to login -->
+      <p class="text-center mt-3">
+        Already have an account? 
+        <a [routerLink]="['/login']" class="text-decoration-none">Back to Login</a>
+      </p>
+    </div>
+  </div>
+</div>

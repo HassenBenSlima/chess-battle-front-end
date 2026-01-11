@@ -1,0 +1,10 @@
+<div class="players-container">
+  <h2>Bienvenue, {{me}}</h2>
+  <h3>Joueurs en ligne :</h3>
+  <ul>
+    <li *ngFor="let player of players">
+      {{player}}
+      <button (click)="invite(player)">Inviter</button>
+    </li>
+  </ul>
+</div>
